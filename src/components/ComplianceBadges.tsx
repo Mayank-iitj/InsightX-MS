@@ -113,14 +113,21 @@ export function ComplianceBadges() {
 
         <div className="flex flex-wrap gap-2">
           {badges.map((badge, index) => (
-            <motion.div
-              key={badge.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => setSelectedBadge(badge)}
-              className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#EBF4DD] border border-[#90AB8B]/30 cursor-pointer hover:shadow-md transition-all active:scale-95"
-            >
+              <motion.div
+                key={badge.name}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => {
+                  setSelectedBadge(badge);
+                  toast.info("Feature will be available soon", {
+                    description: `Certificate viewing for ${badge.name} is coming in the next update.`,
+                    icon: <Shield className="w-4 h-4 text-[#5A7863]" />,
+                  });
+                }}
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#EBF4DD] border border-[#90AB8B]/30 cursor-pointer hover:shadow-md transition-all active:scale-95"
+              >
+
               <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-[#5A7863]" />
               <div>
                 <p className="text-xs sm:text-sm font-bold text-[#3B4953]">{badge.name}</p>
