@@ -308,6 +308,17 @@ export default function Home() {
               Zero raw data exchange. Always encrypted.
             </p>
           </div>
+          
+          <div className="mt-8 pt-6 border-t border-[#5A7863]/20 flex justify-center">
+            <a 
+              href="https://github.com/Mayank-iitj/InsightX-MS" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] sm:text-xs font-medium text-[#90AB8B]/40 hover:text-[#EBF4DD] transition-colors tracking-[0.2em] uppercase"
+            >
+              Developed by Mayank
+            </a>
+          </div>
         </div>
       </footer>
 
