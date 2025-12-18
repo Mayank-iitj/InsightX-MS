@@ -356,6 +356,20 @@ export default function Home() {
           )}
         </DialogContent>
       </Dialog>
+
+      <motion.a
+        href="https://github.com/Mayank-iitj/InsightX-MS"
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        whileHover={{ scale: 1.05 }}
+        className="fixed bottom-6 right-6 z-[9999] px-4 py-2 rounded-full bg-[#3B4953]/90 backdrop-blur-md border border-[#5A7863]/40 shadow-2xl flex items-center gap-2.5 group transition-all hover:bg-[#3B4953] hover:border-[#5A7863] active:scale-95"
+      >
+        <div className="w-2 h-2 rounded-full bg-[#EBF4DD] animate-pulse" />
+        <span className="text-[10px] font-bold text-[#EBF4DD] tracking-[0.2em] uppercase">Developed by Mayank</span>
+        <Shield className="w-3.5 h-3.5 text-[#EBF4DD] group-hover:rotate-12 transition-transform" />
+      </motion.a>
     </div>
   );
 }
