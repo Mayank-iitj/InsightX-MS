@@ -286,3 +286,40 @@ nextjs-portal {
   background: inherit;
   opacity: 0.4;
 }
+
+/* Enhanced Responsive Layout Utilities */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.auto-rows-fr {
+  grid-auto-rows: 1fr;
+}
+
+.safe-area-padding {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tap-target-min {
+  min-height: 44px;
+}
