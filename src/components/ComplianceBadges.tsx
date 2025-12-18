@@ -194,13 +194,20 @@ export function ComplianceBadges() {
                 </div>
               </div>
 
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setSelectedBadge(null)}>Close</Button>
-                <Button className="bg-[#5A7863] hover:bg-[#3B4953]">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View Certificate
-                </Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSelectedBadge(null)}>Close</Button>
+                  <Button 
+                    className="bg-[#5A7863] hover:bg-[#3B4953]"
+                    onClick={() => toast.info("Feature will be available soon", {
+                      description: `The digital certificate for ${selectedBadge.name} will be available for download soon.`,
+                      icon: <FileText className="w-4 h-4 text-[#EBF4DD]" />,
+                    })}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Certificate
+                  </Button>
+                </DialogFooter>
+
             </>
           )}
         </DialogContent>
