@@ -22,6 +22,7 @@ import { FederatedArchitecture } from "@/components/FederatedArchitecture";
 import { SyntheticDataStudio } from "@/components/SyntheticDataStudio";
 import { ComplianceBadges } from "@/components/ComplianceBadges";
 import { AdminPanel } from "@/components/AdminPanel";
+import { WelcomeScreen } from "@/components/WelcomeScreen";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ import { Button } from "@/components/ui/button";
 export default function Home() {
   const [activeTab, setActiveTab] = useState("overview");
   const [adminOpen, setAdminOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const [selectedFeature, setSelectedFeature] = useState<{ title: string; desc: string; details: string } | null>(null);
 
   const organizations = [
