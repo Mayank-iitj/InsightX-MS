@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, CheckCircle2, FileText, Globe, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
