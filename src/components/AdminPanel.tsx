@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
@@ -12,29 +12,21 @@ import {
   Lock,
   Unlock,
   RefreshCw,
-  Power,
   Plus,
   Trash2,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
   Server,
   Key,
-  Cpu,
   Wifi,
-  WifiOff,
-  TrendingUp,
   BarChart3,
   Clock,
   Zap,
-  Globe,
   FileText,
   Download,
-  Upload,
   Play,
   Pause,
   RotateCcw,
-  Terminal
+  Terminal,
+  Cpu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -150,7 +142,6 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
   const [newUserDialog, setNewUserDialog] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "viewer" as const, organization: "" });
   const [isLive, setIsLive] = useState(true);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
     "$ federated-hub --init",
     "[INFO] Initializing Federated Insight Hub...",
@@ -197,19 +188,23 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
         { action: "Alert Triggered", level: "warning" as const, details: "Anomaly score exceeded threshold" },
       ];
       const randomAction = actions[Math.floor(Math.random() * actions.length)];
-      const users = ["john@alphabank.com", "sarah@megamart.com", "system", "mike@healthguard.com"];
+      const userEmails = ["john@alphabank.com", "sarah@megamart.com", "system", "mike@healthguard.com"];
       
       setLogs(prev => [{
         id: `log-${Date.now()}`,
         timestamp: new Date(),
         action: randomAction.action,
-        user: users[Math.floor(Math.random() * users.length)],
+        user: userEmails[Math.floor(Math.random() * userEmails.length)],
         level: randomAction.level,
         details: randomAction.details
       }, ...prev.slice(0, 49)]);
     }, 5000);
     return () => clearInterval(logInterval);
   }, [isLive]);
+
+  const addTerminalLog = (message: string) => {
+    setTerminalOutput(prev => [...prev.slice(0, -1), `[${new Date().toLocaleTimeString()}] ${message}`, "$ _"]);
+  };
 
   const toggleSetting = (id: string) => {
     setSettings(prev => prev.map(s => 
@@ -222,6 +217,7 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
     setSettings(prev => prev.map(s => 
       s.id === id ? { ...s, value } : s
     ));
+    addTerminalLog(`Setting "${settings.find(s => s.id === id)?.name}" updated to ${value}`);
   };
 
   const addUser = () => {
@@ -256,10 +252,6 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
     ));
     const user = users.find(u => u.id === id);
     addTerminalLog(`User "${user?.name}" ${user?.status === "active" ? "deactivated" : "activated"}`);
-  };
-
-  const addTerminalLog = (message: string) => {
-    setTerminalOutput(prev => [...prev.slice(0, -1), `[${new Date().toLocaleTimeString()}] ${message}`, "$ _"]);
   };
 
   const restartNode = (nodeId: string) => {
@@ -330,7 +322,7 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
 
         <Tabs defaultValue="dashboard" className="w-full">
           <div className="px-4 sm:px-6">
-            <TabsList className="w-full grid grid-cols-5">
+            <TabsList className="w-full grid grid-cols-5 h-10">
               <TabsTrigger value="dashboard" className="text-xs sm:text-sm gap-1">
                 <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Dashboard</span>
@@ -403,8 +395,8 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                     <Terminal className="w-4 h-4" />
                     System Console
                   </h4>
-                  <div className="font-mono text-xs text-[#90AB8B] space-y-1 max-h-32 overflow-y-auto scrollbar-thin">
-                    {terminalOutput.slice(-8).map((line, i) => (
+                  <div className="font-mono text-[10px] sm:text-xs text-[#90AB8B] space-y-1 h-32 overflow-y-auto scrollbar-thin pr-2">
+                    {terminalOutput.map((line, i) => (
                       <p key={i} className={line.includes("[OK]") ? "text-[#90AB8B]" : line.includes("[INFO]") ? "text-[#EBF4DD]" : "text-[#90AB8B]"}>
                         {line}
                       </p>
@@ -422,8 +414,8 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                 ].map((stat, i) => (
                   <div key={i} className="p-3 rounded-lg bg-gradient-to-br from-[#5A7863] to-[#3B4953] text-white">
                     <stat.icon className="w-4 h-4 mb-1 opacity-70" />
-                    <p className="text-lg font-bold font-mono">{stat.value}</p>
-                    <p className="text-xs opacity-70">{stat.label}</p>
+                    <p className="text-base sm:text-lg font-bold font-mono">{stat.value}</p>
+                    <p className="text-[10px] sm:text-xs opacity-70">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -461,40 +453,41 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                       <div className="flex items-center gap-4">
                         <div className="text-center">
                           <p className="text-sm font-mono text-[#5A7863]">{node.cpu}%</p>
-                          <p className="text-xs text-[#90AB8B]">CPU</p>
+                          <p className="text-[10px] text-[#90AB8B]">CPU</p>
                         </div>
                         <div className="text-center">
                           <p className="text-sm font-mono text-[#5A7863]">{node.memory}%</p>
-                          <p className="text-xs text-[#90AB8B]">RAM</p>
+                          <p className="text-[10px] text-[#90AB8B]">RAM</p>
                         </div>
                         <div className="text-center">
                           <p className="text-sm font-mono text-[#5A7863]">{node.queries}</p>
-                          <p className="text-xs text-[#90AB8B]">Queries</p>
+                          <p className="text-[10px] text-[#90AB8B]">Queries</p>
                         </div>
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => restartNode(node.id)}
                           disabled={node.status === "syncing"}
+                          className="h-8 w-8 p-0"
                         >
                           <RefreshCw className={`w-4 h-4 ${node.status === "syncing" ? "animate-spin" : ""}`} />
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
+                    <div className="mt-3 grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[10px] sm:text-xs">
                           <span className="text-[#90AB8B]">CPU Load</span>
                           <span className={node.cpu > 80 ? "text-red-500" : "text-[#5A7863]"}>{node.cpu}%</span>
                         </div>
-                        <Progress value={node.cpu} className={`h-2 ${node.cpu > 80 ? "[&>div]:bg-red-500" : ""}`} />
+                        <Progress value={node.cpu} className={`h-1.5 ${node.cpu > 80 ? "[&>div]:bg-red-500" : ""}`} />
                       </div>
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[10px] sm:text-xs">
                           <span className="text-[#90AB8B]">Memory</span>
                           <span className={node.memory > 85 ? "text-amber-500" : "text-[#5A7863]"}>{node.memory}%</span>
                         </div>
-                        <Progress value={node.memory} className={`h-2 ${node.memory > 85 ? "[&>div]:bg-amber-500" : ""}`} />
+                        <Progress value={node.memory} className={`h-1.5 ${node.memory > 85 ? "[&>div]:bg-amber-500" : ""}`} />
                       </div>
                     </div>
                   </motion.div>
@@ -504,10 +497,10 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
 
             <TabsContent value="users" className="space-y-4 mt-0">
               <div className="flex justify-between items-center">
-                <h4 className="font-medium text-[#3B4953]">User Management ({users.length} users)</h4>
+                <h4 className="font-medium text-[#3B4953]">User Management ({users.length})</h4>
                 <Button 
                   size="sm" 
-                  className="bg-[#5A7863] hover:bg-[#3B4953]"
+                  className="bg-[#5A7863] hover:bg-[#3B4953] h-8"
                   onClick={() => setNewUserDialog(true)}
                 >
                   <Plus className="w-4 h-4 mr-1" />
@@ -525,28 +518,30 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                     className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-white border border-[#90AB8B]/20 hover:border-[#90AB8B]/40 transition-colors gap-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium ${
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 ${
                         user.role === "admin" ? "bg-[#5A7863]" : 
                         user.role === "analyst" ? "bg-[#90AB8B]" : 
                         "bg-gray-400"
                       }`}>
                         {user.name.split(' ').map(n => n[0]).join('')}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-[#3B4953]">{user.name}</p>
+                          <p className="font-medium text-[#3B4953] truncate">{user.name}</p>
                           <div className={`w-2 h-2 rounded-full ${user.status === "active" ? "bg-[#5A7863]" : "bg-gray-300"}`} />
                         </div>
-                        <p className="text-xs text-[#90AB8B]">{user.email}</p>
+                        <p className="text-xs text-[#90AB8B] truncate">{user.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-3 ml-13 sm:ml-0">
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        user.role === "admin" ? "bg-[#5A7863] text-white" :
-                        user.role === "analyst" ? "bg-[#90AB8B] text-white" :
-                        "bg-gray-200 text-gray-600"
-                      }`}>{user.role}</span>
-                      <span className="text-xs text-[#90AB8B] hidden md:inline">{user.organization}</span>
+                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 ml-13 sm:ml-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                          user.role === "admin" ? "bg-[#5A7863] text-white" :
+                          user.role === "analyst" ? "bg-[#90AB8B] text-white" :
+                          "bg-gray-200 text-gray-600"
+                        }`}>{user.role}</span>
+                        <span className="text-[10px] text-[#90AB8B] hidden md:inline truncate max-w-[80px]">{user.organization}</span>
+                      </div>
                       <div className="flex items-center gap-1">
                         <Button 
                           variant="ghost" 
@@ -582,7 +577,7 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                   
                   return (
                     <div key={category} className="bg-white rounded-lg border border-[#90AB8B]/30 p-4">
-                      <h4 className="font-medium text-[#3B4953] mb-3 capitalize flex items-center gap-2">
+                      <h4 className="font-medium text-[#3B4953] mb-3 capitalize flex items-center gap-2 text-sm sm:text-base">
                         {category === "privacy" && <Shield className="w-4 h-4 text-[#5A7863]" />}
                         {category === "security" && <Lock className="w-4 h-4 text-[#5A7863]" />}
                         {category === "limits" && <Activity className="w-4 h-4 text-[#5A7863]" />}
@@ -591,37 +586,39 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                         {category === "compliance" && <FileText className="w-4 h-4 text-[#5A7863]" />}
                         {category} Settings
                       </h4>
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         {categorySettings.map(setting => (
-                          <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-[#EBF4DD]/30 transition-colors gap-2">
-                            <div>
-                              <span className="text-sm text-[#3B4953]">{setting.name}</span>
-                              <p className="text-xs text-[#90AB8B]">{setting.description}</p>
+                          <div key={setting.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg bg-gray-50 hover:bg-[#EBF4DD]/30 transition-colors gap-2">
+                            <div className="min-w-0">
+                              <span className="text-sm font-medium text-[#3B4953]">{setting.name}</span>
+                              <p className="text-[10px] sm:text-xs text-[#90AB8B] line-clamp-1">{setting.description}</p>
                             </div>
-                            {setting.type === "boolean" ? (
-                              <Switch 
-                                checked={setting.value as boolean} 
-                                onCheckedChange={() => toggleSetting(setting.id)}
-                              />
-                            ) : setting.type === "number" ? (
-                              <Input
-                                type="number"
-                                value={setting.value as number}
-                                onChange={(e) => updateSettingValue(setting.id, parseFloat(e.target.value) || 0)}
-                                className="w-24 h-8 text-right"
-                              />
-                            ) : (
-                              <Select value={setting.value as string} onValueChange={(v) => updateSettingValue(setting.id, v)}>
-                                <SelectTrigger className="w-32 h-8">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="AES-128">AES-128</SelectItem>
-                                  <SelectItem value="AES-256">AES-256</SelectItem>
-                                  <SelectItem value="ChaCha20">ChaCha20</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
+                            <div className="shrink-0 flex justify-end">
+                              {setting.type === "boolean" ? (
+                                <Switch 
+                                  checked={setting.value as boolean} 
+                                  onCheckedChange={() => toggleSetting(setting.id)}
+                                />
+                              ) : setting.type === "number" ? (
+                                <Input
+                                  type="number"
+                                  value={setting.value as number}
+                                  onChange={(e) => updateSettingValue(setting.id, parseFloat(e.target.value) || 0)}
+                                  className="w-20 h-7 text-right text-xs"
+                                />
+                              ) : (
+                                <Select value={setting.value as string} onValueChange={(v) => updateSettingValue(setting.id, v)}>
+                                  <SelectTrigger className="w-24 h-7 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="AES-128">AES-128</SelectItem>
+                                    <SelectItem value="AES-256">AES-256</SelectItem>
+                                    <SelectItem value="ChaCha20">ChaCha20</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -633,8 +630,8 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
 
             <TabsContent value="logs" className="space-y-4 mt-0">
               <div className="flex justify-between items-center">
-                <h4 className="font-medium text-[#3B4953]">Audit Logs ({logs.length} entries)</h4>
-                <Button size="sm" variant="outline" onClick={exportLogs}>
+                <h4 className="font-medium text-[#3B4953]">Audit Logs</h4>
+                <Button size="sm" variant="outline" onClick={exportLogs} className="h-8">
                   <Download className="w-4 h-4 mr-1" />
                   Export
                 </Button>
@@ -642,27 +639,26 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
 
               <div className="space-y-2">
                 <AnimatePresence mode="popLayout">
-                  {logs.slice(0, 20).map((log, index) => (
+                  {logs.map((log) => (
                     <motion.div
                       key={log.id}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      transition={{ delay: index * 0.02 }}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-2 rounded-lg bg-white border border-[#90AB8B]/20 gap-2"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg bg-white border border-[#90AB8B]/20 gap-2"
                     >
-                      <div className="flex items-center gap-3">
-                        <span className={`text-xs px-2 py-0.5 rounded ${getLevelColor(log.level)}`}>
+                      <div className="flex items-start sm:items-center gap-3">
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 font-medium ${getLevelColor(log.level)}`}>
                           {log.level.toUpperCase()}
                         </span>
-                        <div>
-                          <p className="text-sm text-[#3B4953]">{log.action}</p>
-                          <p className="text-xs text-[#90AB8B]">{log.details}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-[#3B4953] truncate">{log.action}</p>
+                          <p className="text-xs text-[#90AB8B] truncate">{log.details}</p>
                         </div>
                       </div>
-                      <div className="text-right ml-10 sm:ml-0">
-                        <p className="text-xs text-[#5A7863]">{log.user}</p>
-                        <p className="text-xs text-[#90AB8B]">{log.timestamp.toLocaleTimeString()}</p>
+                      <div className="flex items-center justify-between sm:justify-end gap-3 ml-13 sm:ml-0 shrink-0">
+                        <p className="text-[10px] text-[#5A7863] font-medium">{log.user}</p>
+                        <p className="text-[10px] text-[#90AB8B]">{log.timestamp.toLocaleTimeString()}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -679,16 +675,16 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
               <DialogDescription>Create a new user account with role-based access</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <label className="text-sm text-[#5A7863]">Name</label>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[#5A7863]">Name</label>
                 <Input 
                   value={newUser.name} 
                   onChange={(e) => setNewUser({...newUser, name: e.target.value})}
                   placeholder="Full name"
                 />
               </div>
-              <div>
-                <label className="text-sm text-[#5A7863]">Email</label>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[#5A7863]">Email</label>
                 <Input 
                   value={newUser.email} 
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
@@ -696,8 +692,8 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                   type="email"
                 />
               </div>
-              <div>
-                <label className="text-sm text-[#5A7863]">Organization</label>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[#5A7863]">Organization</label>
                 <Select value={newUser.organization} onValueChange={(v) => setNewUser({...newUser, organization: v})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select organization" />
@@ -709,8 +705,8 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="text-sm text-[#5A7863]">Role</label>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-[#5A7863]">Role</label>
                 <Select value={newUser.role} onValueChange={(v: "admin" | "analyst" | "viewer") => setNewUser({...newUser, role: v})}>
                   <SelectTrigger>
                     <SelectValue />
@@ -723,7 +719,7 @@ export function AdminPanel({ open, onOpenChange }: AdminPanelProps) {
                 </Select>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setNewUserDialog(false)}>Cancel</Button>
               <Button className="bg-[#5A7863] hover:bg-[#3B4953]" onClick={addUser}>Add User</Button>
             </DialogFooter>
